@@ -29,7 +29,7 @@ export default function DashboardLayout({
       </Sidebar>
       <SidebarInset>
         <DashboardHeader />
-        <main className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
