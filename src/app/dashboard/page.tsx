@@ -48,8 +48,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="relative flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-      <div className="grid grid-cols-1 gap-6">
+    <div className="relative flex-1 space-y-6">
         {/* Metrics Row */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <Card>
@@ -138,7 +137,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
-      </div>
       <FloatingChatbot threatContext={threatContext} />
     </div>
   );

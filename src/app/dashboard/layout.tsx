@@ -23,13 +23,13 @@ export default function DashboardLayout({
             <span className="truncate text-lg font-semibold">ThreatWatch AV</span>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="flex flex-col">
           <DashboardNav />
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
         <DashboardHeader />
-        <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+        <main className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

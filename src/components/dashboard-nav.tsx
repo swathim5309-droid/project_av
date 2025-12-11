@@ -10,6 +10,7 @@ import {
   Radar,
   Rocket,
   History,
+  User,
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -28,10 +29,15 @@ const navItems = [
   { href: '/dashboard/history', icon: History, label: 'History' },
 ];
 
+const secondaryNavItems = [
+    { href: '/dashboard/profile', icon: User, label: 'Profile' },
+]
+
 export function DashboardNav() {
   const pathname = usePathname();
 
   return (
+    <>
     <SidebarMenu>
       {navItems.map((item) => (
         <SidebarMenuItem key={item.label}>
@@ -48,5 +54,24 @@ export function DashboardNav() {
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
+    <div className="mt-auto">
+        <SidebarMenu>
+            {secondaryNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                    >
+                        <Link href={item.href}>
+                            <item.icon />
+                            <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
+        </SidebarMenu>
+    </div>
+    </>
   );
 }

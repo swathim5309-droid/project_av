@@ -80,8 +80,12 @@ export function DashboardHeader() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/signup">Create another account</Link>
+            <Link href="/dashboard/profile">Profile</Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/signin">Use another account</Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             Log out
           </DropdownMenuItem>
