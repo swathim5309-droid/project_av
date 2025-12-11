@@ -96,13 +96,13 @@ export default function DashboardPage() {
 
       {/* Live Map and Alerts */}
       <div className="col-span-1 lg:col-span-6">
-        <Card className="bg-green-200">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-semibold text-black">Live GPS Route Map</CardTitle>
+            <CardTitle className="text-xl font-semibold">Live GPS Route Map</CardTitle>
           </CardHeader>
           <CardContent>
              {dashboardMap && (
-                <div className="aspect-video overflow-hidden rounded-md">
+                <div className="aspect-video overflow-hidden rounded-md relative">
                    <Image
                     src={dashboardMap.imageUrl}
                     alt={dashboardMap.description}
@@ -111,6 +111,7 @@ export default function DashboardPage() {
                     className="h-full w-full object-cover"
                     data-ai-hint={dashboardMap.imageHint}
                   />
+                  <div className="absolute inset-0 bg-green-500 mix-blend-multiply"></div>
                 </div>
               )}
           </CardContent>
