@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const sampleData = {
   a: { sensor_type: 'LIDAR', reading: 150.5, redundancy_check_ok: 0, time_since_last_reading_ms: 5, expected_range_min: 20, expected_range_max: 100 },
-  b: { sensor_type: 'CAMERA', reading: 1, redundancy_check_ok: 1, time_since_last_reading_ms: 33, expected_range_min: 0, expected_range_max: 1 },
+  b: { sensor_type: 'CAMERA', reading: 1, redundancy_check_ok: 0, time_since_last_reading_ms: 33, expected_range_min: 0, expected_range_max: 1 },
   c: { sensor_type: 'RADAR', reading: 45.2, redundancy_check_ok: 1, time_since_last_reading_ms: 40, expected_range_min: 1, expected_range_max: 200 },
 };
 
