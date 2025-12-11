@@ -30,7 +30,7 @@ export function LandingPage() {
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+            <div className="grid gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_700px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
@@ -48,14 +48,13 @@ export function LandingPage() {
                   </Button>
                 </div>
               </div>
-              <div className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last">
+              <div className="relative mx-auto aspect-video w-full overflow-hidden rounded-xl lg:order-last">
                 {heroImage ? (
                   <Image
                     src={heroImage.imageUrl}
-                    alt="Autonomous vehicle in a futuristic city"
-                    width={600}
-                    height={400}
-                    className="h-full w-full object-cover"
+                    alt="A team of software developers working together"
+                    fill
+                    className="object-cover"
                     data-ai-hint={heroImage.imageHint}
                     priority
                   />
