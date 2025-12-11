@@ -74,6 +74,47 @@
         "sybilNodesCount",
         "riskScore"
       ]
+    },
+    "SybilAttack": {
+      "title": "SybilAttack",
+      "type": "object",
+      "description": "Represents a log of a Sybil attack detection event.",
+      "properties": {
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the detection occurred."
+        },
+        "sybilNodeCount": {
+          "type": "number",
+          "description": "The number of Sybil nodes detected in this event."
+        },
+        "riskScore": {
+          "type": "number",
+          "description": "The calculated risk score for this event (0-100)."
+        },
+        "nodes": {
+          "type": "array",
+          "description": "A list of nodes involved in the detection.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vehicleId": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "detectedAt",
+        "sybilNodeCount",
+        "riskScore",
+        "nodes"
+      ]
     }
   },
   "auth": {
@@ -112,6 +153,22 @@
             {
               "name": "sybilDetectionResultId",
               "description": "Unique identifier for the Sybil detection result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sybil_attacks/{sybilAttackId}",
+        "definition": {
+          "entityName": "SybilAttack",
+          "schema": {
+            "$ref": "#/backend/entities/SybilAttack"
+          },
+          "description": "Stores logs of Sybil attack detection events.",
+          "params": [
+            {
+              "name": "sybilAttackId",
+              "description": "Unique identifier for the sybil attack log."
             }
           ]
         }
