@@ -16,7 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { GpsAnomaliesChart, SpoofingFrequencyChart } from './_components/charts';
 import { AlertTriangle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { AIThreatSummary } from './_components/ai-summary';
-import { LiveMap } from './_components/live-map';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const metrics = {
   sybilAlerts: 14,
@@ -38,6 +39,7 @@ const severityConfig = {
 };
 
 export default function DashboardPage() {
+  const mapImage = PlaceHolderImages.find(p => p.id === 'dashboard-map');
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
       {/* Metrics Row */}
@@ -98,7 +100,18 @@ export default function DashboardPage() {
             <CardTitle className="text-xl font-semibold">Live GPS Route Map</CardTitle>
           </CardHeader>
           <CardContent>
-            <LiveMap />
+             {mapImage && (
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={mapImage.imageUrl}
+                    alt="Map of a city"
+                    fill
+                    className="object-cover"
+                    data-ai-hint={mapImage.imageHint}
+                  />
+                  <div className="absolute inset-0 bg-green-500 opacity-20 mix-blend-multiply"></div>
+                </div>
+              )}
           </CardContent>
         </Card>
       </div>
