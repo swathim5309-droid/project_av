@@ -63,7 +63,7 @@ export function LandingPage() {
                 </div>
               </div>
                <Image
-                src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzb2Z0d2FyZSUyMHRlYW18ZW58MHx8fHwxNzE3MjEwODI4fDA&ixlib=rb-4.1.0&q=80&w=1080"
+                src="https://images.unsplash.com/photo-1678223938562-4f0194a28795?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmdXR1cmlzdGljJTIwY2FyJTIwaW50ZXJmYWNlfGVufDB8fHx8MTc2NTQxOTAzN3ww&ixlib=rb-4.1.0&q=80&w=1080"
                 width="600"
                 height="400"
                 alt="Hero"
@@ -85,7 +85,9 @@ export function LandingPage() {
             <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
               <Card className="text-center">
                 <CardHeader className="items-center">
-                  <Network className="h-10 w-10 text-primary" />
+                  <div className="rounded-full bg-primary/10 p-4 text-primary">
+                    <Network className="h-8 w-8" />
+                  </div>
                   <CardTitle className="mt-4">Sybil Attack Detection</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -99,7 +101,9 @@ export function LandingPage() {
               </Card>
               <Card className="text-center">
                 <CardHeader className="items-center">
-                  <MapPin className="h-10 w-10 text-primary" />
+                  <div className="rounded-full bg-primary/10 p-4 text-primary">
+                    <MapPin className="h-8 w-8" />
+                  </div>
                   <CardTitle className="mt-4">GPS Spoofing Analysis</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -113,7 +117,9 @@ export function LandingPage() {
               </Card>
               <Card className="text-center">
                 <CardHeader className="items-center">
-                  <Radar className="h-10 w-10 text-primary" />
+                  <div className="rounded-full bg-primary/10 p-4 text-primary">
+                    <Radar className="h-8 w-8" />
+                  </div>
                   <CardTitle className="mt-4">Sensor Spoofing Detection</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
