@@ -14,8 +14,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { GpsAnomaliesChart, SpoofingFrequencyChart } from './_components/charts';
-import { Map, AlertTriangle, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { AIThreatSummary } from './_components/ai-summary';
+import { LiveMap } from './_components/live-map';
 
 const metrics = {
   sybilAlerts: 14,
@@ -97,9 +98,7 @@ export default function DashboardPage() {
             <CardTitle className="text-xl font-semibold">Live GPS Route Map</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
-              <Map className="h-16 w-16 text-muted-foreground" />
-            </div>
+            <LiveMap />
           </CardContent>
         </Card>
       </div>
