@@ -21,7 +21,7 @@ export function ChatbotSidebar({ threatContext }: ChatbotSidebarProps) {
     <div
       className={cn(
         'flex flex-col border-r bg-card transition-[width] duration-300 ease-in-out',
-        isExpanded ? 'w-full md:w-[300px]' : 'w-[56px]'
+        isExpanded ? 'w-full md:w-[350px]' : 'w-[56px]'
       )}
     >
       <div className="flex items-center justify-between border-b p-2">
