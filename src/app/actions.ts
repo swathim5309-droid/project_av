@@ -17,6 +17,13 @@ import {
   type DetectSybilAttackOutput,
   DetectSybilAttackInputSchema,
 } from '@/ai/schemas/detect-sybil-attack-schemas';
+import {
+  askThreatAdvisor,
+} from '@/ai/flows/threat-advisor-flow';
+import {
+  type AskThreatAdvisorInput,
+  AskThreatAdvisorInputSchema,
+} from '@/ai/schemas/threat-advisor-schemas';
 import { z } from 'zod';
 
 const AISummarySchema = z.object({
@@ -70,5 +77,23 @@ export async function getSybilAttackPrediction(
   } catch (e) {
     console.error(e);
     return { error: 'Failed to get prediction.' };
+  }
+}
+
+
+export async function getThreatAdvice(
+  input: AskThreatAdvisorInput
+): Promise<{ response?: string; error?: string }> {
+  const parsed = AskThreatAdvisorInputSchema.safeParse(input);
+  if (!parsed.success) {
+    console.error(parsed.error);
+    return { error: 'Invalid input provided to threat advisor.' };
+  }
+  try {
+    const result = await askThreatAdvisor(parsed.data);
+    return { response: result.response };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to get advice from the Threat Advisor.' };
   }
 }

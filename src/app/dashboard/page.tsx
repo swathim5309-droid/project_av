@@ -17,6 +17,7 @@ import { GpsAnomaliesChart, SpoofingFrequencyChart } from './_components/charts'
 import { AlertTriangle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { AIThreatSummary } from './_components/ai-summary';
 import { LiveMap } from './_components/live-map';
+import { ThreatAdvisorChatbot } from './_components/threat-advisor-chatbot';
 
 const metrics = {
   sybilAlerts: 14,
@@ -38,6 +39,12 @@ const severityConfig = {
 };
 
 export default function DashboardPage() {
+  const threatContext = {
+    sybilAlerts: metrics.sybilAlerts,
+    gpsSpoofingEvents: metrics.gpsSpoofing,
+    sensorAnomalies: metrics.sensorFlags,
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
       {/* Metrics Row */}
@@ -74,22 +81,25 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* AI Summary */}
-      <div className="col-span-1 lg:col-span-12">
-        <AIThreatSummary
-          sybilAlertsToday={metrics.sybilAlerts}
-          gpsSpoofingEvents={metrics.gpsSpoofing}
-          sensorSpoofingFlags={metrics.sensorFlags}
-        />
+      <div className="col-span-1 lg:col-span-7">
+        <div className="grid grid-cols-1 gap-6">
+            {/* AI Summary */}
+            <AIThreatSummary
+              sybilAlertsToday={metrics.sybilAlerts}
+              gpsSpoofingEvents={metrics.gpsSpoofing}
+              sensorSpoofingFlags={metrics.sensorFlags}
+            />
+
+            {/* Charts Section */}
+            <GpsAnomaliesChart />
+            <SpoofingFrequencyChart />
+        </div>
+      </div>
+      
+      <div className="col-span-1 lg:col-span-5">
+        <ThreatAdvisorChatbot threatContext={threatContext} />
       </div>
 
-      {/* Charts Section */}
-      <div className="col-span-1 lg:col-span-7">
-        <GpsAnomaliesChart />
-      </div>
-      <div className="col-span-1 lg:col-span-5">
-        <SpoofingFrequencyChart />
-      </div>
 
       {/* Live Map and Alerts */}
       <div className="col-span-1 lg:col-span-6">
