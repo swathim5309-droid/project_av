@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, CheckCircle, Loader2, ShieldQuestion } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, ShieldQuestion, UploadCloud } from 'lucide-react';
 import { Gauge } from '@/components/gauge';
 import { useFirestore } from '@/firebase';
 import { addSybilAttackLog } from '@/firebase/firestore/sybil-attacks';
@@ -40,8 +40,9 @@ export default function SybilDetectionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [prediction, setPrediction] = useState<DetectSybilAttackOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset } = useForm<DetectSybilAttackInput>({
+  const { control, handleSubmit, reset, setValue } = useForm<DetectSybilAttackInput>({
     resolver: zodResolver(DetectSybilAttackInputSchema),
     defaultValues: sampleData.a,
   });
@@ -80,44 +81,96 @@ export default function SybilDetectionPage() {
     setError(null);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      const data = lines[1].split(',').map(d => parseFloat(d.trim()));
+
+      const dataObject: { [key: string]: number } = {};
+      headers.forEach((header, index) => {
+        if (Object.keys(sampleData.a).includes(header)) {
+          dataObject[header] = data[index];
+        }
+      });
+      
+      const parsedData = DetectSybilAttackInputSchema.safeParse(dataObject);
+      if (parsedData.success) {
+        handleRunDetection(parsedData.data);
+      } else {
+        setError("CSV file format is incorrect or doesn't contain required columns.");
+        console.error(parsedData.error);
+      }
+    };
+    reader.readAsText(file);
+  };
+
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">Run Sybil Attack Detection</CardTitle>
-          <CardDescription>
-            Enter vehicle data to analyze for Sybil attack patterns or load a sample.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => loadSample('a')}>Sample A (Malicious)</Button>
-            <Button variant="outline" size="sm" onClick={() => loadSample('b')}>Sample B (Benign)</Button>
-            <Button variant="outline" size="sm" onClick={() => loadSample('c')}>Sample C (Benign)</Button>
-          </div>
-          <form onSubmit={handleSubmit(handleRunDetection)} className="grid grid-cols-2 gap-4">
-             {(Object.keys(sampleData.a) as Array<keyof DetectSybilAttackInput>).map((key) => (
-                <div key={key} className="space-y-2">
-                    <Label htmlFor={key} className="capitalize">{key.replace(/_/g, ' ')}</Label>
-                    <Controller
-                        name={key}
-                        control={control}
-                        render={({ field }) => (
-                            <Input {...field} id={key} type="number" step="any" onChange={e => field.onChange(e.target.valueAsNumber)} />
-                        )}
-                    />
-                </div>
-            ))}
-            <div className="col-span-2">
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Run Detection
-                </Button>
+      <div className="flex flex-col gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">Upload Vehicle Data CSV</CardTitle>
+            <CardDescription>
+              Submit a CSV file for Sybil attack analysis. The first data row will be used.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex h-40 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed">
+              <UploadCloud className="mb-4 h-10 w-10 text-muted-foreground" />
+              <Label htmlFor="file-upload" className="cursor-pointer text-primary hover:underline">
+                Choose a file
+              </Label>
+              <p className="mt-1 text-sm text-muted-foreground">{fileName || 'or drag and drop'}</p>
+              <Input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".csv" />
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">Run Sybil Attack Detection Manually</CardTitle>
+            <CardDescription>
+              Enter vehicle data to analyze for Sybil attack patterns or load a sample.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => loadSample('a')}>Sample A (Malicious)</Button>
+              <Button variant="outline" size="sm" onClick={() => loadSample('b')}>Sample B (Benign)</Button>
+              <Button variant="outline" size="sm" onClick={() => loadSample('c')}>Sample C (Benign)</Button>
+            </div>
+            <form onSubmit={handleSubmit(handleRunDetection)} className="grid grid-cols-2 gap-4">
+              {(Object.keys(sampleData.a) as Array<keyof DetectSybilAttackInput>).map((key) => (
+                  <div key={key} className="space-y-2">
+                      <Label htmlFor={key} className="capitalize">{key.replace(/_/g, ' ')}</Label>
+                      <Controller
+                          name={key}
+                          control={control}
+                          render={({ field }) => (
+                              <Input {...field} id={key} type="number" step="any" onChange={e => field.onChange(e.target.valueAsNumber)} />
+                          )}
+                      />
+                  </div>
+              ))}
+              <div className="col-span-2">
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      Run Manual Detection
+                  </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-xl font-semibold">AI Detection Results</CardTitle>
