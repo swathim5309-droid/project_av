@@ -28,7 +28,7 @@ export function LandingPage() {
             <Image
               src="https://picsum.photos/seed/1/1200/800"
               alt="Blurred background image 1"
-              layout="fill"
+              fill
               objectFit="cover"
               className="opacity-10 blur-2xl"
               data-ai-hint="abstract technology"
@@ -36,7 +36,7 @@ export function LandingPage() {
              <Image
               src="https://picsum.photos/seed/2/1200/800"
               alt="Blurred background image 2"
-              layout="fill"
+              fill
               objectFit="cover"
               className="opacity-10 blur-2xl"
               style={{ mixBlendMode: 'overlay' }}
