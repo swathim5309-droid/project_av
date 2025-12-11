@@ -122,6 +122,11 @@ export default function SignInPage() {
               Sign up
             </Link>
           </div>
+           <div className="mt-4 text-center text-sm">
+             <Link href="/signup" className="underline">
+              Use another account
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
