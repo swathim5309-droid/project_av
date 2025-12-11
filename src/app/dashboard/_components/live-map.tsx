@@ -18,7 +18,7 @@ export function LiveMap() {
   if (!apiKey) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-muted text-center">
-        <p className="p-4 text-sm text-muted-foreground">
+        <p className="p-4 text-sm text-white">
           Google Maps API key is not configured. Please add{' '}
           <code className="font-mono bg-muted-foreground/20 px-1 py-0.5 rounded">
             NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
