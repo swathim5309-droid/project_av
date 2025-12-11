@@ -48,7 +48,7 @@ export function DashboardHeader() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/login">Log out</Link>
+            <Link href="/">Log out</Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
