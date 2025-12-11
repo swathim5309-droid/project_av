@@ -60,56 +60,55 @@ export function LandingPage() {
             <div className="mb-12 text-center">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Advanced Threat Detection Capabilities</h2>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    Our platform identifies and mitigates critical security risks for autonomous vehicles.
+                    Our platform identifies and mitigates critical security risks for autonomous vehicles, ensuring safe and reliable operation. We provide deep analysis into network, navigation, and sensor-based threats.
                 </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
+            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+              <Card className="text-center">
+                <CardHeader className="items-center">
                   <Network className="h-10 w-10 text-primary" />
-                  <CardTitle>Sybil Attack Detection</CardTitle>
+                  <CardTitle className="mt-4">Sybil Attack Detection</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    A Sybil attack creates multiple fake vehicle identities to disrupt vehicle-to-vehicle communication networks, leading to phantom traffic jams or incorrect routing.
+                    A Sybil attack creates multiple fake vehicle identities to disrupt vehicle-to-vehicle (V2V) communication networks. This can lead to phantom traffic jams, incorrect routing, and even coordinated system failures.
                   </p>
                    <p className="text-sm font-medium">
-                    ThreatWatch AV analyzes communication patterns to identify and neutralize these fake nodes in real-time, ensuring network integrity.
+                    ThreatWatch AV analyzes communication patterns and message frequencies to identify and neutralize these fake nodes in real-time, preserving network integrity and ensuring reliable V2V data exchange.
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
+              <Card className="text-center">
+                <CardHeader className="items-center">
                   <MapPin className="h-10 w-10 text-primary" />
-                  <CardTitle>GPS Spoofing Analysis</CardTitle>
+                  <CardTitle className="mt-4">GPS Spoofing Analysis</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                    <p className="text-sm text-muted-foreground">
-                    GPS spoofing transmits false satellite signals to trick an AV into thinking it's somewhere it isn't, potentially causing it to drive off-road or into danger.
+                    GPS spoofing transmits false satellite signals to trick an AV into thinking it's somewhere it isn't. This can cause the vehicle to drive off-road, into oncoming traffic, or into other dangerous situations.
                   </p>
                    <p className="text-sm font-medium">
-                    Our system cross-references GPS data with other sensors to detect anomalies and alert the system to a potential spoofing event, ensuring safe navigation.
+                    Our system cross-references GPS data with inertial measurement units (IMU), cellular positioning, and other sensors to detect signal anomalies and alert the system to a potential spoofing event, ensuring safe and accurate navigation.
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
+              <Card className="text-center">
+                <CardHeader className="items-center">
                   <Radar className="h-10 w-10 text-primary" />
-                  <CardTitle>Sensor Spoofing Detection</CardTitle>
+                  <CardTitle className="mt-4">Sensor Spoofing Detection</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    This attack involves feeding false data to an AV's sensors (like LIDAR or cameras) to make it perceive phantom obstacles or ignore real ones.
+                    This sophisticated attack involves feeding false data to an AV's critical sensors (like LiDAR, cameras, or radar) to make it perceive phantom obstacles or, more dangerously, ignore real ones.
                   </p>
                   <p className="text-sm font-medium">
-                    ThreatWatch AV uses advanced algorithms to find inconsistencies across multiple sensor inputs, identifying and flagging manipulated data to prevent accidents.
+                    ThreatWatch AV uses advanced machine learning algorithms to find inconsistencies across multiple sensor inputs, identifying and flagging manipulated data to prevent catastrophic accidents and ensure the vehicle perceives its true environment.
                   </p>
                 </CardContent>
               </Card>
             </div>
           </div>
         </section>
-
       </main>
       <footer className="flex items-center justify-center p-6">
         <p className="text-xs text-muted-foreground">
