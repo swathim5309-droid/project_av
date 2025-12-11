@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,111 +13,158 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { UploadCloud } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, ShieldQuestion } from 'lucide-react';
 import { Gauge } from '@/components/gauge';
 import { useFirestore } from '@/firebase';
 import { addSybilAttackLog } from '@/firebase/firestore/sybil-attacks';
 import { useToast } from '@/hooks/use-toast';
+import { getSybilAttackPrediction } from '@/app/actions';
+import {
+  DetectSybilAttackInputSchema,
+  type DetectSybilAttackInput,
+  type DetectSybilAttackOutput,
+} from '@/ai/schemas/detect-sybil-attack-schemas';
 
-
-const detectionResults = {
-  sybilNodeCount: 7,
-  riskScore: 68,
-  nodes: [
-    { vehicleId: 'V-78B1C', confidence: '98%' },
-    { vehicleId: 'V-A90F2', confidence: '95%' },
-    { vehicleId: 'V-33DE8', confidence: '91%' },
-    { vehicleId: 'V-55A4C', confidence: '85%' },
-  ],
+// Sample data for easy testing
+const sampleData = {
+  a: { position_x: 156.0186, position_y: 869.6497, speed: 14.29872, direction: 66.80889, acceleration: -0.10746, signal_strength: -92.9876, trust_score: 0.282821, sybil_attack_attempts: 2},
+  b: { position_x: 181.825, position_y: 211.7459, speed: 15.09628, direction: 312.24444, acceleration: -0.94809, signal_strength: -53.4068, trust_score: 0.076902, sybil_attack_attempts: 0},
+  c: { position_x: 374.5401, position_y: 393.6355, speed: 11.20922, direction: 179.8813, acceleration: 1.37999, signal_strength: -74.8686, trust_score: 0.733277, sybil_attack_attempts: 1},
 };
+
 
 export default function SybilDetectionPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [prediction, setPrediction] = useState<DetectSybilAttackOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRunDetection = () => {
-    if (firestore) {
-      addSybilAttackLog(firestore, detectionResults);
-      toast({
-        title: 'Detection Results Saved',
-        description: 'The Sybil attack log has been saved to the database.',
-      });
+  const { control, handleSubmit, reset } = useForm<DetectSybilAttackInput>({
+    resolver: zodResolver(DetectSybilAttackInputSchema),
+    defaultValues: sampleData.a,
+  });
+
+  const handleRunDetection = async (data: DetectSybilAttackInput) => {
+    setIsLoading(true);
+    setPrediction(null);
+    setError(null);
+
+    const predictionResult = await getSybilAttackPrediction(data);
+
+    if (predictionResult.error || !predictionResult.result) {
+      setError(predictionResult.error || 'An unknown error occurred.');
     } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Firestore is not available. Could not save results.',
-      });
+      setPrediction(predictionResult.result);
+       if (firestore) {
+         addSybilAttackLog(firestore, {
+           sybilNodeCount: predictionResult.result.isMalicious ? 1 : 0,
+           riskScore: predictionResult.result.confidence * 100,
+           nodes: [
+            { vehicleId: 'V-SIMULATED', confidence: `${Math.round(predictionResult.result.confidence * 100)}%` },
+           ]
+         });
+         toast({
+           title: 'Detection Logged',
+           description: 'The Sybil attack analysis has been saved.',
+         });
+       }
     }
+    setIsLoading(false);
   };
+
+  const loadSample = (sample: 'a' | 'b' | 'c') => {
+    reset(sampleData[sample]);
+    setPrediction(null);
+    setError(null);
+  };
+
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">Upload Vehicle Communication Log</CardTitle>
+          <CardTitle className="text-xl font-semibold">Run Sybil Attack Detection</CardTitle>
           <CardDescription>
-            Submit a log file (.log, .txt) to scan for Sybil attack patterns.
+            Enter vehicle data to analyze for Sybil attack patterns or load a sample.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed">
-            <UploadCloud className="mb-4 h-12 w-12 text-muted-foreground" />
-            <Label htmlFor="file-upload" className="cursor-pointer text-primary hover:underline">
-              Choose a file
-            </Label>
-            <p className="mt-1 text-sm text-muted-foreground">or drag and drop</p>
-            <Input id="file-upload" type="file" className="sr-only" />
+        <CardContent>
+          <div className="mb-4 flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => loadSample('a')}>Sample A (Malicious)</Button>
+            <Button variant="outline" size="sm" onClick={() => loadSample('b')}>Sample B (Benign)</Button>
+            <Button variant="outline" size="sm" onClick={() => loadSample('c')}>Sample C (Benign)</Button>
           </div>
-          <Button className="w-full" onClick={handleRunDetection}>Run Detection</Button>
+          <form onSubmit={handleSubmit(handleRunDetection)} className="grid grid-cols-2 gap-4">
+             {(Object.keys(sampleData.a) as Array<keyof DetectSybilAttackInput>).map((key) => (
+                <div key={key} className="space-y-2">
+                    <Label htmlFor={key} className="capitalize">{key.replace(/_/g, ' ')}</Label>
+                    <Controller
+                        name={key}
+                        control={control}
+                        render={({ field }) => (
+                            <Input {...field} id={key} type="number" step="any" onChange={e => field.onChange(e.target.valueAsNumber)} />
+                        )}
+                    />
+                </div>
+            ))}
+            <div className="col-span-2">
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Run Detection
+                </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">Sybil Detection Results</CardTitle>
-          <CardDescription>Analysis of the latest uploaded log file.</CardDescription>
+          <CardTitle className="text-xl font-semibold">AI Detection Results</CardTitle>
+          <CardDescription>Real-time analysis from the AI model.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col items-center justify-around gap-6 sm:flex-row">
-            <div className="text-center">
-              <p className="text-sm font-medium text-muted-foreground">Sybil Nodes Count</p>
-              <p className="text-6xl font-bold">{detectionResults.sybilNodeCount}</p>
+        <CardContent className="min-h-[300px] flex items-center justify-center">
+        {isLoading ? (
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        ) : error ? (
+            <div className="text-center text-destructive flex flex-col items-center gap-2">
+                <AlertCircle className="h-10 w-10" />
+                <p className="font-semibold">Error</p>
+                <p className="text-sm">{error}</p>
             </div>
-            <div className="flex flex-col items-center">
-               <Gauge value={detectionResults.riskScore} label="Risk Score" />
+        ) : prediction ? (
+          <div className="w-full space-y-6">
+            <div className="flex flex-col items-center justify-around gap-6 sm:flex-row">
+                 <div className="text-center">
+                    <p className="text-sm font-medium text-muted-foreground">Result</p>
+                    {prediction.isMalicious ? (
+                        <div className="flex items-center gap-2 text-2xl font-bold text-destructive">
+                            <AlertCircle />
+                            <span>Malicious</span>
+                        </div>
+                    ) : (
+                         <div className="flex items-center gap-2 text-2xl font-bold text-success">
+                            <CheckCircle />
+                            <span>Benign</span>
+                        </div>
+                    )}
+                 </div>
+                 <div className="flex flex-col items-center">
+                   <Gauge value={Math.round(prediction.confidence * 100)} label="Confidence" />
+                </div>
+            </div>
+            <Separator />
+            <div>
+                <h3 className="font-medium mb-2">Reasoning</h3>
+                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{prediction.reasoning}</p>
             </div>
           </div>
-          <Separator />
-          <div className="space-y-2">
-            <h3 className="font-medium">Detected Sybil Nodes</h3>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Vehicle ID</TableHead>
-                    <TableHead className="text-right">Confidence Level</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {detectionResults.nodes.map((node) => (
-                    <TableRow key={node.vehicleId}>
-                      <TableCell className="font-mono text-sm">{node.vehicleId}</TableCell>
-                      <TableCell className="text-right font-medium">{node.confidence}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+        ) : (
+           <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
+                <ShieldQuestion className="h-10 w-10" />
+                <p>Submit vehicle data to see the AI prediction.</p>
             </div>
-          </div>
+        )}
         </CardContent>
       </Card>
     </div>

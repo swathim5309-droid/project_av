@@ -3,9 +3,20 @@
 
 import {
   summarizeVehicleThreats,
-  type SummarizeVehicleThreatsInput,
 } from '@/ai/flows/summarize-vehicle-threats';
+import {
+    type SummarizeVehicleThreatsInput,
+    SummarizeVehicleThreatsInputSchema,
+} from '@/ai/schemas/summarize-vehicle-threats-schemas'
 import { generateHeroVideo } from '@/ai/flows/generate-hero-video';
+import {
+  detectSybilAttack,
+} from '@/ai/flows/detect-sybil-attack';
+import {
+  type DetectSybilAttackInput,
+  type DetectSybilAttackOutput,
+  DetectSybilAttackInputSchema,
+} from '@/ai/schemas/detect-sybil-attack-schemas';
 import { z } from 'zod';
 
 const AISummarySchema = z.object({
@@ -40,5 +51,24 @@ export async function getHeroVideo(): Promise<{ videoUrl?: string; error?: strin
   } catch (e) {
     console.error(e);
     return { error: 'Failed to generate video.' };
+  }
+}
+
+export async function getSybilAttackPrediction(
+  input: DetectSybilAttackInput
+): Promise<{ result?: DetectSybilAttackOutput; error?: string }> {
+  const parsed = DetectSybilAttackInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    console.error(parsed.error);
+    return { error: 'Invalid input.' };
+  }
+
+  try {
+    const result = await detectSybilAttack(parsed.data);
+    return { result };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to get prediction.' };
   }
 }
