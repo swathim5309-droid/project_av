@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "VehicleCommunicationLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VehicleCommunicationLog",
+      "type": "object",
+      "description": "Represents a vehicle communication log for Sybil attack detection.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Vehicle Communication Log."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the communication log entry.",
+          "format": "date-time"
+        },
+        "vehicleId": {
+          "type": "string",
+          "description": "Identifier of the vehicle involved in the communication."
+        },
+        "messageType": {
+          "type": "string",
+          "description": "Type of communication message (e.g., CAN message, Ethernet frame)."
+        },
+        "data": {
+          "type": "string",
+          "description": "The actual data payload of the communication."
+        },
+        "sybilDetectionResultId": {
+          "type": "string",
+          "description": "Reference to SybilDetectionResult. (Relationship: SybilDetectionResult 1:N VehicleCommunicationLog)"
+        }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "vehicleId",
+        "messageType",
+        "data"
+      ]
+    },
+    "SybilDetectionResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SybilDetectionResult",
+      "type": "object",
+      "description": "Represents the results of a Sybil attack detection analysis.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Sybil Detection Result."
+        },
+        "detectionTimestamp": {
+          "type": "string",
+          "description": "Timestamp of when the Sybil detection analysis was performed.",
+          "format": "date-time"
+        },
+        "sybilNodesCount": {
+          "type": "number",
+          "description": "The number of Sybil nodes detected."
+        },
+        "riskScore": {
+          "type": "number",
+          "description": "Risk score associated with the Sybil attack."
+        },
+        "vehicleId": {
+          "type": "string",
+          "description": "Vehicle ID associated with the detection."
+        }
+      },
+      "required": [
+        "id",
+        "detectionTimestamp",
+        "sybilNodesCount",
+        "riskScore"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/vehicleCommunicationLogs/{vehicleCommunicationLogId}",
+        "definition": {
+          "entityName": "VehicleCommunicationLog",
+          "schema": {
+            "$ref": "#/backend/entities/VehicleCommunicationLog"
+          },
+          "description": "Stores vehicle communication logs for Sybil attack detection. Includes parameters for accessing individual logs.",
+          "params": [
+            {
+              "name": "vehicleCommunicationLogId",
+              "description": "Unique identifier for the vehicle communication log."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sybilDetectionResults/{sybilDetectionResultId}",
+        "definition": {
+          "entityName": "SybilDetectionResult",
+          "schema": {
+            "$ref": "#/backend/entities/SybilDetectionResult"
+          },
+          "description": "Stores results of Sybil attack detection analyses. Includes parameters for accessing individual detection results.",
+          "params": [
+            {
+              "name": "sybilDetectionResultId",
+              "description": "Unique identifier for the Sybil detection result."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the Autonomous Vehicle Threat Detection System, focusing on Sybil attack detection, GPS spoofing, and sensor anomalies. The structure prioritizes authorization independence by avoiding hierarchical authorization dependencies, ensuring that security rules are clear, debuggable, and do not rely on `get()` calls. This is achieved by denormalizing data where necessary to avoid dependency on parent documents for authorization.  \n\nAuthorization Independence: Since all data is collected and processed without user-specific ownership, the structure doesn't rely on user-based authorization. Instead, access is controlled at the collection level, and data can be read or written by authorized services or functions.  \n\nQAPs Support: The segregation of data into collections based on their purpose (VehicleCommunicationLogs, SybilDetectionResults) supports secure list operations (QAPs). Since no user-specific data is mixed with global detection results, listing data is straightforward and doesn't require complex filtering logic in the security rules. Specifically, the lack of user-specific data means that list operations are always performed at the collection level with consistent security requirements.\n\nGlobal roles are not explicitly defined as there are no user specific permissions required, it is assumed the backend has blanket permissions to manage the data."
+  }
+}

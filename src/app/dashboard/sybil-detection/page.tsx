@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,6 +21,10 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { UploadCloud } from 'lucide-react';
 import { Gauge } from '@/components/gauge';
+import { useFirestore } from '@/firebase';
+import { addSybilAttackLog } from '@/firebase/firestore/sybil-attacks';
+import { useToast } from '@/hooks/use-toast';
+
 
 const detectionResults = {
   sybilNodeCount: 7,
@@ -32,6 +38,25 @@ const detectionResults = {
 };
 
 export default function SybilDetectionPage() {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const handleRunDetection = () => {
+    if (firestore) {
+      addSybilAttackLog(firestore, detectionResults);
+      toast({
+        title: 'Detection Results Saved',
+        description: 'The Sybil attack log has been saved to the database.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Firestore is not available. Could not save results.',
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
@@ -50,7 +75,7 @@ export default function SybilDetectionPage() {
             <p className="mt-1 text-sm text-muted-foreground">or drag and drop</p>
             <Input id="file-upload" type="file" className="sr-only" />
           </div>
-          <Button className="w-full">Run Detection</Button>
+          <Button className="w-full" onClick={handleRunDetection}>Run Detection</Button>
         </CardContent>
       </Card>
       <Card>

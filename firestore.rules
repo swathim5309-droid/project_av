@@ -1,0 +1,94 @@
+/**
+ * @file firestore.rules
+ * @description Security rules for the Autonomous Vehicle Threat Detection System.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict server-centric security model. All data mutations
+ * (creates, updates, deletes) are expected to originate from a trusted backend
+ * environment (e.g., Cloud Functions, a server with the Admin SDK) which bypasses
+ * these client-facing rules. Client-side applications are effectively granted
+ * read-only access to prevent unauthorized data manipulation.
+ *
+ * Data Structure:
+ * The data is organized into a flat structure with two top-level collections:
+ * `/vehicleCommunicationLogs` and `/sybilDetectionResults`. This design avoids
+ * hierarchical dependencies and the need for costly `get()` calls in security rules,
+ * making authorization checks simple and performant.
+ *
+ * Key Security Decisions:
+ * 1. Backend-Only Writes: All write operations (`create`, `update`, `delete`) are
+ *    explicitly denied for client SDKs. This is the cornerstone of the security
+ *    model, ensuring data integrity by routing all changes through a controlled
+ *    backend service.
+ * 2. Public Read Access: Data within the collections is considered non-sensitive
+ *    and is made available for public read (`get`, `list`). This supports client-side
+ *    applications that need to display detection results or log data without
+ *    requiring user authentication.
+ * 3. No User Ownership: The data model does not associate records with specific
+ *    users, so there are no ownership-based rules. Access is controlled at the
+ *    collection level, not on a per-document basis.
+ *
+ * Denormalization for Authorization:
+ * This principle is not heavily utilized as there are no user-specific permissions.
+ * The flat data structure inherently avoids the need to denormalize ownership or
+ * role data for authorization purposes.
+ *
+ * Structural Segregation:
+ * The clear separation of `vehicleCommunicationLogs` and `sybilDetectionResults`
+ * into distinct top-level collections provides a clean and secure boundary for
+ * applying broad access policies.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    /**
+     * @description Checks if a user is authenticated.
+     * @returns {boolean} True if the user is signed in, false otherwise.
+     */
+    // function isSignedIn() {
+    //   return request.auth != null;
+    // }
+
+    /**
+     * @description
+     * Stores vehicle communication logs for Sybil attack detection. This data is
+     * written by backend services and is publicly readable by any client.
+     * @path /vehicleCommunicationLogs/{vehicleCommunicationLogId}
+     * @allow (get) Any user, signed in or not, can read a specific log.
+     * @allow (list) Any user, signed in or not, can list all logs.
+     * @deny (create, update, delete) All write operations are blocked from client SDKs.
+     * @principle Implements a "Public Read, Backend-Only Write" model. This secures the
+     *   data's integrity by forcing all modifications through a trusted server
+     *   environment, while allowing open consumption of the data by clients.
+     */
+    match /vehicleCommunicationLogs/{vehicleCommunicationLogId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description
+     * Stores the results of Sybil attack detection analyses. This data is generated
+     * by backend processes and is publicly readable by any client.
+     * @path /sybilDetectionResults/{sybilDetectionResultId}
+     * @allow (get) Any user, signed in or not, can read a specific detection result.
+     * @allow (list) Any user, signed in or not, can list all detection results.
+     * @deny (create, update, delete) All write operations are blocked from client SDKs.
+     * @principle Implements a "Public Read, Backend-Only Write" model. This secures the
+     *   data's integrity by forcing all modifications through a trusted server
+     *   environment, while allowing open consumption of the data by clients.
+     */
+    match /sybilDetectionResults/{sybilDetectionResultId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
