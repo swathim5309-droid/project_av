@@ -17,10 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, CheckCircle, Loader2, ShieldQuestion, UploadCloud } from 'lucide-react';
 import { Gauge } from '@/components/gauge';
-import { useFirestore } from '@/firebase';
-import { addSybilAttackLog } from '@/firebase/firestore/sybil-attacks';
 import { useToast } from '@/hooks/use-toast';
-import { getSybilAttackPrediction } from '@/app/actions';
 import {
   DetectSybilAttackInputSchema,
   type DetectSybilAttackInput,
@@ -36,10 +33,9 @@ const sampleData = {
 
 
 export default function SybilDetectionPage() {
-  const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [prediction, setPrediction] = useState<DetectSybilAttackOutput | null>(null);
+  const [prediction, setPrediction] = useState<{isMalicious: boolean, confidence: number, reasoning: string} | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<DetectSybilAttackInput | null>(null);
@@ -55,26 +51,49 @@ export default function SybilDetectionPage() {
     setPrediction(null);
     setError(null);
 
-    const predictionResult = await getSybilAttackPrediction(data);
+    try {
+      const backendUrl = 'http://localhost:8000/predict';
+      const features = Object.values(data); // Convert data object to a list of feature values
 
-    if (predictionResult.error || !predictionResult.result) {
-      setError(predictionResult.error || 'An unknown error occurred.');
-    } else {
-      setPrediction(predictionResult.result);
-       if (firestore) {
-         addSybilAttackLog(firestore, {
-           sybilNodeCount: predictionResult.result.isMalicious ? 1 : 0,
-           riskScore: predictionResult.result.confidence * 100,
-           nodes: [
-            { vehicleId: 'V-SIMULATED', confidence: `${Math.round(predictionResult.result.confidence * 100)}%` },
-           ]
-         });
-         toast({
-           title: 'Detection Logged',
-           description: 'The Sybil attack analysis has been saved.',
-         });
-       }
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend server error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      // Adapt the Python backend result to the frontend's expected format
+      const isMalicious = result.prediction === 1;
+      setPrediction({
+          isMalicious: isMalicious,
+          confidence: isMalicious ? 0.95 : 0.05, // Placeholder confidence
+          reasoning: isMalicious ? 'Prediction from custom Python model indicates malicious activity.' : 'Prediction from custom Python model indicates benign activity.',
+      });
+
+      toast({
+        title: 'Prediction Complete',
+        description: 'Received prediction from your Python backend.',
+      });
+
+    } catch (e: any) {
+      setError(e.message || 'Failed to get prediction from backend.');
+      console.error(e);
+      toast({
+        variant: 'destructive',
+        title: 'Backend Error',
+        description: `Could not connect to the Python backend. Is it running on port 8000? Details: ${e.message}`,
+      });
     }
+
     setIsLoading(false);
   };
 
@@ -198,8 +217,8 @@ export default function SybilDetectionPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">AI Detection Results</CardTitle>
-          <CardDescription>Real-time analysis from the AI model.</CardDescription>
+          <CardTitle className="text-xl font-semibold">Custom Model Prediction</CardTitle>
+          <CardDescription>Real-time analysis from your Python model.</CardDescription>
         </CardHeader>
         <CardContent className="min-h-[300px] flex items-center justify-center">
         {isLoading ? (
@@ -240,7 +259,7 @@ export default function SybilDetectionPage() {
         ) : (
            <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
                 <ShieldQuestion className="h-10 w-10" />
-                <p>Submit vehicle data to see the AI prediction.</p>
+                <p>Submit vehicle data to see the prediction from your Python model.</p>
             </div>
         )}
         </CardContent>
