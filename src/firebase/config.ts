@@ -1,7 +1,7 @@
 
 import { initializeApp } from "firebase/app";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   projectId: "studio-9832230977-6c6ca",
   apiKey: process.env.NEXT_FIREBASE_API_KEY,
   appId: process.env.NEXT_FIREBASE_APP_ID,
@@ -10,4 +10,4 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_FIREBASE_MEASUREMENT_ID, // optional
 };
 
-export const app = initializeApp(firebaseConfig);
+// export const app = initializeApp(firebaseConfig);
